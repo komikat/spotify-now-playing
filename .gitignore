@@ -1,3 +1,5 @@
 node_modules
 .env
 track.json
+refresh_token.txt
+package-lock.json
