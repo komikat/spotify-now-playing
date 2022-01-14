@@ -45,8 +45,6 @@ app.get('/callback', async function (req, res) {
     if(!auth_code){
         return res.send("Invalid request.")
     }
-    // now we use the auth_code to actually get the access_token,
-    // and further more the refresh_token
     const options = {
         url: 'https://accounts.spotify.com/api/token',
         method: 'post',
@@ -66,7 +64,6 @@ app.get('/callback', async function (req, res) {
 				return res.send("Something went wrong", err)
     })
     const refresh_token = response.data.refresh_token;
-    // Now we have the precious refresh_token, let's store it 
     fs.writeFileSync('./refresh_token.txt', refresh_token);
     return res.end('Success ! You can close this tab now!');
 });
