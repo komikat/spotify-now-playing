@@ -1,0 +1,2 @@
+* Spotify Now Playing
+a simple API to fetch whatever I'm listening on spotify 
