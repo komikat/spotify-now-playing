@@ -19,7 +19,7 @@ const base64data = buff.toString('base64');
 
 
 const app = express()
-const redirect_uri = process.env.repl ? "https://spotify.akshitkumar3110.repl.co/callback" : "http://127.0.0.1:3000/callback"
+const redirect_uri = process.env.repl ? "https://spotify-now-playing-1.akshitkumar3110.repl.co/callback" : "http://127.0.0.1:3000/callback"
 
 
 // fs.writeFileSync('./refresh_token.txt', refresh_token);
@@ -160,5 +160,5 @@ app.get("/history", async(req, res) => {
       
 })
 app.listen(3000, () => {
-    console.log("Listening on 3000")
+    console.log("Listening on 3000!")
 })
