@@ -2,9 +2,10 @@ const express = require('express')
 const fs = require('fs')
 const axios = require('axios')
 const SpotifyWebApi = require('spotify-web-api-node');
-
+const cors = require('cors')
 
 const dotenv = require('dotenv');
+
 dotenv.config();
 
 var spotifyApi = new SpotifyWebApi();
@@ -19,6 +20,8 @@ const base64data = buff.toString('base64');
 
 
 const app = express()
+
+app.use(cors());
 const redirect_uri = process.env.repl ? "https://spotify.akshitkumar3110.repl.co/callback" : "http://127.0.0.1:3000/callback"
 
 
@@ -139,6 +142,7 @@ app.get("/now", async (req, res) => {
             })
             console.log('Offline');
         });
+
 })
 
 
