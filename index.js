@@ -2,7 +2,6 @@ const express = require('express')
 const fs = require('fs')
 const axios = require('axios')
 const SpotifyWebApi = require('spotify-web-api-node');
-const { get } = require('express/lib/response');
 
 
 const dotenv = require('dotenv');
@@ -39,6 +38,13 @@ app.get('/login', function (req, res) {
         '&redirect_uri=' + encodeURIComponent(redirect_uri));
 });
 
+const axiosReq = async (options) => {
+
+    const response = await axios(options);
+
+    return response
+}
+
 app.get('/callback', async function (req, res) {
     const auth_code = req.query.code;
 
@@ -59,18 +65,27 @@ app.get('/callback', async function (req, res) {
         }
     };
 
-    const response = await axios(options).catch((err) => {
-        console.log("Something went wrong", err);
-				return res.send("Something went wrong", err)
+    axiosReq(options).then((response) => {
+        const refresh_token = response.data.refresh_token;
+        fs.writeFileSync('./refresh_token.txt', refresh_token);
+
+        return res.end('Success ! You can close this tab now!');
+    }).catch((err) => {
+        res.end("Something went wrong: " + err.response.data.error_description)
     })
-    const refresh_token = response.data.refresh_token;
-    fs.writeFileSync('./refresh_token.txt', refresh_token);
-    return res.end('Success ! You can close this tab now!');
 });
 
 
 const getAccessToken = async () => {
-  const refresh_token = fs.readFileSync('./refresh_token.txt', 'utf8');
+    let refresh_token;
+
+    try {
+        refresh_token = fs.readFileSync('./refresh_token.txt', 'utf8');
+    }
+    catch (err) {
+        return null
+    }
+
     const auth_response = await axios({
         url: 'https://accounts.spotify.com/api/token',
         method: 'post',
@@ -82,9 +97,9 @@ const getAccessToken = async () => {
             grant_type: 'refresh_token',
             refresh_token: refresh_token
         }
-    });
-    const access_token = auth_response.data.access_token;
+  });
 
+    const access_token = auth_response.data.access_token;
     return access_token
 }
 
@@ -93,10 +108,17 @@ const getAccessToken = async () => {
 app.get("/now", async (req, res) => {
 
     const access_token = await getAccessToken();
+
+    if(!access_token){
+        console.log("File not found, logging in again")
+        return res.redirect("/login")
+    }
+
+
     spotifyApi.setAccessToken(access_token);
 
     spotifyApi.getMyCurrentPlayingTrack()
-        .then(function (data) {
+        .then( (data) => {
             const song = data.body.item.name;
             const artist = data.body.item.artists[0].name;
             const url = data.body.item.external_urls.spotify;
@@ -111,11 +133,11 @@ app.get("/now", async (req, res) => {
             fs.writeFileSync('./track.json', JSON.stringify(trackData));
             res.send(trackData)
 
-        }, function (err) {
+        }).catch( (err) => {
             res.send({
                 playing: false
             })
-            console.log('Something went wrong!', err);
+            console.log('Offline');
         });
 })
 
@@ -137,9 +159,6 @@ app.get("/history", async(req, res) => {
         });
       
 })
-
-
-
 app.listen(3000, () => {
     console.log("Listening on 3000")
 })

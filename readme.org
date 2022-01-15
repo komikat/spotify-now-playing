@@ -1,7 +1,0 @@
-* Spotify Now Playing
-a simple API to fetch whatever I'm listening on spotify 
-
-** TODO TODO 
-    - Basic functionality
-    - Display upto 20 previous played recently
-    - make the API general 

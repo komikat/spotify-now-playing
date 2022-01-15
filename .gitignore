@@ -3,3 +3,4 @@ node_modules
 track.json
 refresh_token.txt
 package-lock.json
+.idea
